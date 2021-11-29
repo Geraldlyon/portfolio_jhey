@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Jhey Tompkins Scrapbook</title>
+  <subtitle>Thoughts, scribbles, and prototypes of what I'm working on.</subtitle>
+  <link href="https://jhey.dev/scrapbook.xml" rel="self"/>
+  <link href="https://jhey.dev/"/>
+  
+  <updated>2021-01-19T21:58:50+00:00</updated>
+  
+  <id>https://jhey.dev</id>
+  <author>
+  <name>Jhey Tompkins</name>
+  <email>hey@jhey.dev</email>
+  </author>
+  
+  
+  <entry>
+    <title>Building my own stack with Eleventy</title>
+    <link href="https://jhey.dev/scrapbook/building-my-own-stack-with-eleventy/"/>
+    <updated>2021-01-08T14:25:40+00:00</updated>
+    <id>https://jhey.dev/scrapbook/building-my-own-stack-with-eleventy/</id>
+    <content type="html"><![CDATA[
+      <ul>
+<li>Eleventy setup</li>
+<li>Storybook MDX for rendering Eleventy Partials</li>
+<li>Netlify CMS local dev using Chokidar</li>
+<li>Using Parcel entry points with &quot;critical&quot; naming conventions</li>
+<li>Helpers</li>
+<li>Transforms</li>
+<li>CSS content search</li>
+<li>Using ELEVENTY_ENV</li>
+<li>Search Query via URLSearchParams</li>
+<li>404 Page Parallaxing w/ mapRange</li>
+<li>Using web.dev &amp;&amp; webpagetest &amp;&amp; WebAIM consistently to test</li>
+<li>Netlify forms</li>
+<li>Pug mixins for icons with != attributes</li>
+<li>Using collections to power Storybook data</li>
+<li>Padding embeds trick</li>
+<li>Consistent use of yarn build &amp;&amp; netlify deploy</li>
+<li>Using json for pug frontmatter</li>
+</ul>
+
+    ]]></content>
+  </entry>
+  
+  
+  <entry>
+    <title>Animating your Github profile</title>
+    <link href="https://jhey.dev/scrapbook/animating-your-github-profile/"/>
+    <updated>2021-01-08T14:48:10+00:00</updated>
+    <id>https://jhey.dev/scrapbook/animating-your-github-profile/</id>
+    <content type="html"><![CDATA[
+      <p>Writeup for</p>
+<div class="post__embed-container">
+      <iframe loading="lazy" class="post__embed" src="https://egghead.io/lessons/css-use-svg-with-inline-css-animations-to-personalize-your-github-profile/embed?af=8ajh64" allow="encrypted-media; picture-in-picture"></iframe>
+    </div>
+    ]]></content>
+  </entry>
+  
+  
+  <entry>
+    <title>Site Image Optimization using eleventy-img</title>
+    <link href="https://jhey.dev/scrapbook/migrating-assets-to-eleventy-img/"/>
+    <updated>2021-01-16T16:15:08+00:00</updated>
+    <id>https://jhey.dev/scrapbook/migrating-assets-to-eleventy-img/</id>
+    <content type="html"><![CDATA[
+      <h2>Why?</h2>
+<ul>
+<li>I originally began with using <code>eleventy-img</code> for all my assets. But, I was having trouble with the markup and the fact that <code>Pug</code> won't support &quot;on the fly&quot; image handling. I switched out to using <code>cloudinary</code> for everything as a quick win.</li>
+<li>Drop Cloudinary report in here.</li>
+<li>Issue was that within a day of deployment, I'd used over 3GB of bandwidth. This was mainly due to video and gif as to be expected. However, I was also not getting consistent image formats to come through. Some would be <code>webp</code>, and some would be <code>jpeg</code>.</li>
+</ul>
+<h2>Solution?</h2>
+<ul>
+<li>I kinda had this half-baked in already.</li>
+<li>Generate an image markup lookup. Have the sizes generated and the markup at enhance time and make it available to the preprocessor. This could be a Pug workaround 🤔</li>
+<li>But, it might also make for better DX</li>
+<li>What's the best experience for writing content?</li>
+</ul>
+<p>Nunjucks shortcode</p>
+<p>vs.</p>
+<pre class="language-markdown"><code class="language-markdown"><span class="highlight-line"><span class="token url">![<span class="token content">Image Alt</span>](/src/assets/post.png)</span></span></code></pre>
+<ul>
+<li>Short code provides no visual feedback in a preview. But, does provide an &quot;in&quot; for doing things like captions.</li>
+</ul>
+<h2>Runtime implications.</h2>
+<ul>
+<li>We could transform everything after the fact.</li>
+<li>But, we are adjusting the markup which has the potential to break the styling.</li>
+<li>Runtime transformations allow us to deal with this.</li>
+<li>However. Pug doesn't like the <code>async</code> stuff so it'll make more sense to do this as a transform.</li>
+<li>Enhancement via transforms works for markdown documents, etc.</li>
+<li>But. How do we make this play nice with Storybook? We could do transforms in <code>main.js</code>. When we generate the markup for a story, we can wrap the images in a <code>picture</code> tag. We don't care if we get the hottest format.</li>
+<li>We could also transform all the images in the media folder <code>predev</code>.</li>
+</ul>
+<h2>Hurdles</h2>
+<ul>
+<li>Netlify Flat CMS media folder is a bit of a downer</li>
+<li>Could make it so that all the processing is handled at deploy time. However, the markup generates <code>&lt;picture&gt;</code> tags which throw off the styling...</li>
+<li>Design? Do you prefer writing a shortcode everywhere or would it be easier to drop a standard image tag in? <code>markdown-it</code> perhaps to add titles? Or is shortcode the cleanest way?</li>
+<li>If you drop a shortcode in. Then that markup gets transformed which would generate another image... Cacheing should handle this. But, I've seen inconsistent results.</li>
+<li>Decisions about base styling for pictures. This is a quick win because it should for the most part work as a straight swap. This was the case with the featured pens strip.</li>
+</ul>
+<pre class="language-css"><code class="language-css"><span class="highlight-line"><span class="token selector">picture img</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">  <span class="token property">max-width</span><span class="token punctuation">:</span> 100%<span class="token punctuation">;</span></span>
+<span class="highlight-line">  <span class="token property">max-height</span><span class="token punctuation">:</span> 100%<span class="token punctuation">;</span></span>
+<span class="highlight-line">  <span class="token property">object-fit</span><span class="token punctuation">:</span> cover<span class="token punctuation">;</span></span>
+<span class="highlight-line"><span class="token punctuation">}</span></span></code></pre>
+<ul>
+<li>Running the image optimizations on every build doesn't make sense. It's slow. Can't we generate everything in a node script first and then use a lookup? Swapping DOM elements doesn't &quot;feel&quot; expensive at runtime. But, transforming the entire image library on every save is overkill.</li>
+</ul>
+<h2>Pros</h2>
+<ul>
+<li>Easier to make on the fly content changes without uploading the asset in one spot, and then copying the resource URL to somewhere else. We can use <code>avif</code>.</li>
+</ul>
+<h2>Todos</h2>
+<ul>
+<li>Switch out to the media chooser for any referenced images in the CMS. Collections: Pens, blog posts, scraps, generic page heros.</li>
+<li><s>Do we need <a href="https://web.dev/codelab-use-lazysizes-to-lazyload-images/">lazysizes</a>? I've switched out to <code>loading=&quot;lazy&quot;</code> as default unless <code>loading=&quot;eager&quot;</code> is explicitly set.</s></li>
+<li>Create a <code>predev</code> node script that generates a markup lookup that can be used by the image enhancer when <code>ELEVENTY_ENV === dev</code></li>
+<li>Base style the nested images in pictures. Currently we are applying a nested class which does work but will catch us out eventually.</li>
+<li>Write up as generic image optimization post. Explain what <code>picture</code> tag does visually.</li>
+</ul>
+<h2>Results</h2>
+<ul>
+<li>Switch out to using a <code>predev</code> script that generates images and assets for us.</li>
+<li>Wrap your markup in <code>picture</code> where possible.</li>
+<li>During <code>dev</code>, do nothing, or return a wrapped <code>img</code> where <code>picture</code> isn't the <code>parentNode</code>.</li>
+<li>Reduce build times by creating a dynamic <code>.eleventyignore</code>.</li>
+<li><code>.avif</code> coming out at a 1/3 of the size in some cases</li>
+<li>Build times from ~30s -&gt; ~1-2s.</li>
+</ul>
+
+    ]]></content>
+  </entry>
+  
+  
+  <entry>
+    <title>The Hamburger Menu Conundrum</title>
+    <link href="https://jhey.dev/scrapbook/the-hamburger-menu-conundrum/"/>
+    <updated>2021-01-17T19:21:39+00:00</updated>
+    <id>https://jhey.dev/scrapbook/the-hamburger-menu-conundrum/</id>
+    <content type="html"><![CDATA[
+      <ul>
+<li>Navs are easy enough</li>
+<li>But. Design makes them one of the trickiest things to implement.</li>
+<li>Catering for with/without JavaScript.</li>
+</ul>
+<p>It falls down to 4 different versions of your Nav...</p>
+<ol>
+<li>Mobile &amp;&amp; No JavaScript. Maybe horizontal scroll overflow. No extra controls.</li>
+<li>Desktop &amp;&amp; No JavaScript. Less issues, more real estate. No extra controls.</li>
+<li>Mobile &amp;&amp; JavaScript. Sliding drawers. Button to open/close. <code>aria-pressed</code>, etc. Extra controls need to be catered for in your layout.</li>
+<li>Desktop &amp;&amp; JavaScript. All guns blazing. Extra controls. The &quot;desired&quot; experience.</li>
+</ol>
+<p>With a little planning, it's all good. The fancier the design, the trickier it can get.</p>
+<p>If you go for horizontal scrolling on mobile with no JavaScript. How do you indicate to your users that they can scroll? Or do you merely go with stacking all your nav items with something like <code>flex-wrap: wrap;</code>?</p>
+
+    ]]></content>
+  </entry>
+  
+  
+  <entry>
+    <title>Building Interactive Twitch Overlays</title>
+    <link href="https://jhey.dev/scrapbook/building-interactive-twitch-overlays-with-next-js-tailwind/"/>
+    <updated>2021-01-19T21:45:14+00:00</updated>
+    <id>https://jhey.dev/scrapbook/building-interactive-twitch-overlays-with-next-js-tailwind/</id>
+    <content type="html"><![CDATA[
+      <h2>Why?</h2>
+<p>Why not? 😅</p>
+<h2>Where we're at</h2>
+<ul>
+<li>Set up new <code>next.js</code> app with <code>create-next-app</code></li>
+<li>Set up <code>deploy</code> task to send straight to <code>netlify</code>.</li>
+</ul>
+<pre class="language-json"><code class="language-json"><span class="highlight-line"><span class="token punctuation">{</span></span>
+<span class="highlight-line">  <span class="token property">"predeploy:prod"</span><span class="token operator">:</span> <span class="token string">"next build &amp;&amp; next export"</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">  <span class="token property">"deploy:prod"</span><span class="token operator">:</span> <span class="token string">"netlify deploy --prod"</span></span>
+<span class="highlight-line"><span class="token punctuation">}</span></span></code></pre>
+<ul>
+<li>Pulled in TailwindCSS</li>
+<li>Created basic side and bottom bar. Created <code>@keyframes</code> extension to animate them out from where the webcam will be positioned(<em>for now</em>).</li>
+</ul>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line">extend<span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">  animation<span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">    <span class="token string">'scale-x'</span><span class="token operator">:</span> <span class="token string">'scale-x 1s both'</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">    <span class="token string">'scale-y'</span><span class="token operator">:</span> <span class="token string">'scale-y 1s both'</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">  <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">  keyframes<span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">    <span class="token string">'scale-x'</span><span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">      <span class="token string">'0%'</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string">'clip-path'</span><span class="token operator">:</span> <span class="token string">'inset(0 0 0 100%)'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">      <span class="token string">'100%'</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string">'clip-path'</span><span class="token operator">:</span> <span class="token string">'inset(0 0 0 0)'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">    <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">    <span class="token string">'scale-y'</span><span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">      <span class="token string">'0%'</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string">'clip-path'</span><span class="token operator">:</span> <span class="token string">'inset(100% 0 0 0)'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">      <span class="token string">'100%'</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token string">'clip-path'</span><span class="token operator">:</span> <span class="token string">'inset(0 0 0 0)'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">    <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">  <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line"><span class="token punctuation">}</span><span class="token punctuation">,</span></span></code></pre>
+<ul>
+<li>When the scene loads, the bars scale in with a clip.</li>
+<li>Explored letting users change the banner color with commands such as <code>!hue 280</code>.</li>
+<li>That required setting up a <code>plugin</code> to <code>addComponents</code>.</li>
+</ul>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line"><span class="token function">plugin</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token punctuation">{</span> addComponents <span class="token punctuation">}</span></span><span class="token punctuation">)</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">  <span class="token keyword">const</span> components <span class="token operator">=</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">    <span class="token string">'.bg-hue'</span><span class="token operator">:</span> <span class="token punctuation">{</span></span>
+<span class="highlight-line">      background<span class="token operator">:</span> <span class="token string">'hsl(var(--hue, 0), 80%, 50%)'</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">    <span class="token punctuation">}</span><span class="token punctuation">,</span></span>
+<span class="highlight-line">  <span class="token punctuation">}</span></span>
+<span class="highlight-line">  <span class="token function">addComponents</span><span class="token punctuation">(</span>components<span class="token punctuation">)</span></span>
+<span class="highlight-line"><span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">,</span></span></code></pre>
+<ul>
+<li>Set up a <code>GSAP</code> tween to animate through the hues as a POC with <code>!overlayParty</code>. Looked quite cool. But, I think we will try to match the party bars used on the bear animation for <code>!party</code>.</li>
+</ul>
+<h2>Look At</h2>
+<ul>
+<li><a href="https://fdgt.dev">fdgt.dev</a> was shared in the chat as a good resource for testing out the things being built.</li>
+<li>Have a think about how the overlay could respond to different commands.</li>
+<li>Pull down sub/follow data from Twitch API</li>
+</ul>
+<h2>Current Stack</h2>
+<ul>
+<li>Tailwind</li>
+<li>Next.js</li>
+<li>GSAP</li>
+<li>Comfy.js</li>
+</ul>
+
+    ]]></content>
+  </entry>
+  
+  
+  <entry>
+    <title>Clipboard API</title>
+    <link href="https://jhey.dev/scrapbook/clipboard-api/"/>
+    <updated>2021-01-19T21:58:50+00:00</updated>
+    <id>https://jhey.dev/scrapbook/clipboard-api/</id>
+    <content type="html"><![CDATA[
+      <p>Need to read/write to the users' Clipboard?</p>
+<h3>Write</h3>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line"><span class="token keyword">await</span> navigator<span class="token punctuation">.</span>clipboard<span class="token punctuation">.</span><span class="token function">writeText</span><span class="token punctuation">(</span><span class="token constant">SOME_VALUE</span><span class="token punctuation">)</span></span></code></pre>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line">navigator<span class="token punctuation">.</span>clipboard<span class="token punctuation">.</span><span class="token function">writeText</span><span class="token punctuation">(</span><span class="token constant">SOME_VALUE</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token function">alert</span><span class="token punctuation">(</span><span class="token string">"Copied!"</span><span class="token punctuation">)</span><span class="token punctuation">)</span></span></code></pre>
+<h3>Read</h3>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line"><span class="token keyword">await</span> navigator<span class="token punctuation">.</span>clipboard<span class="token punctuation">.</span><span class="token function">readText</span><span class="token punctuation">(</span><span class="token punctuation">)</span></span></code></pre>
+<pre class="language-javascript"><code class="language-javascript"><span class="highlight-line">navigator<span class="token punctuation">.</span>clipboard<span class="token punctuation">.</span><span class="token function">readText</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token parameter">value</span> <span class="token operator">=></span> <span class="token function">alert</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">Paste </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>value<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">!</span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span></span></code></pre>
+<hr>
+<ul>
+<li>If you need this in an <code>iframe</code>. Set the <code>iframe</code> permissions to allow clipboard read/write</li>
+<li><code>navigator.clipboard</code> methods return a <code>Promise</code>. Either <code>await</code> or use a callback.</li>
+</ul>
+
+    ]]></content>
+  </entry>
+  
+</feed>
